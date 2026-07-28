@@ -1,0 +1,7 @@
+# The loom's dependencies. Python 3.9+.
+#   pip install -r tools/requirements.txt
+# CairoSVG needs the native cairo library, which pip does NOT provide:
+#   macOS:  brew install cairo
+#   Debian: apt-get install libcairo2
+cairosvg>=2.7
+pillow>=10.0

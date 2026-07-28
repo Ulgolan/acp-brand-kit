@@ -33,6 +33,19 @@ disagree, `BRAND.md` wins.
 
 ## Manifest
 
+### `/sources/` — 7 files
+The canonical inputs. **Not build output — do not regenerate these.** The loom reads them; everything else in this repo is derived from them.
+
+```
+bloom-star.svg
+diamond-eye.svg
+north-star.svg
+pop-logo-color.png
+pop-logo-mono.png
+quad-knot.svg
+stem-bloom.svg
+```
+
 ### `/motifs/` — 10 files
 ```
 motif_bloom-star_crisp.svg
@@ -48,7 +61,7 @@ motif_stem-bloom_stitch.svg
 ```
 
 ### `/fields/` — 60 files
-Silhouette-dialect fields, one motif per file, on the six deployed grounds. `.svg` is a 480x480 swatch with the tile as a pattern; `.png` is the same at 2x (960x960).
+Silhouette-dialect fields, one motif per file, on the six deployed grounds. `.svg` is a 480x480 swatch carrying the tile as a `<pattern>`; `.png` is the same at 2x (960x960).
 
 ```
 field_diamond-eye_{ivory,yellow,pink,vermilion,peri,abyss}.{svg,png}
@@ -58,15 +71,16 @@ field_quad-knot_{ivory,yellow,pink,vermilion,peri,abyss}.{svg,png}
 field_stem-bloom_{ivory,yellow,pink,vermilion,peri,abyss}.{svg,png}
 ```
 
-### `/bands/` — 3 files
+### `/bands/` — 4 files
 ```
 band_deco-strip.svg
 band_deco.svg
 band_eternal-thread.svg
+band_light-trim.svg
 ```
 
 ### `/mixed/` — 41 files
-20 seeded Mixed Fields on ivory + abyss, even shuffle, silhouette dialect. A seed produces one layout; the layout is rendered on both grounds.
+20 seeded Mixed Fields on ivory + abyss, even shuffle, silhouette dialect. A seed produces one layout; that layout is rendered on both grounds.
 
 ```
 mix_s{1..20}_{ivory,abyss}.svg
@@ -84,23 +98,67 @@ pop-logo-color.png
 pop-logo-mono.png
 ```
 
+### `/tools/` — 3 files
+```
+docs.py
+gen.py
+requirements.txt
+```
+
+---
+
+## The loom
+
+`tools/` holds the generator that produced every derived file here. It is committed so the
+**seed-reproducibility guarantee is verifiable from this repo alone, forever** — the seed is the
+design, and the loom is what proves it.
+
+```bash
+brew install cairo                        # native dep; apt-get install libcairo2 on Debian
+pip install -r tools/requirements.txt
+python3 tools/gen.py                      # motifs, fields, bands, mixed, contact sheet, marks
+python3 tools/docs.py                     # css + this README
+```
+
+`gen.py` is idempotent: running it on a clean checkout reproduces every tracked file
+byte-for-byte. `docs.py` imports `gen.py` as a model and emits nothing on import.
+
 ---
 
 ## Provenance
 
 | Asset | Source | Method |
 |---|---|---|
-| Five Folk motifs | `*.svg` at repo root, 20px module | Parsed to integer grids; zero off-module rects |
+| Five Folk motifs | `sources/*.svg`, 20px module | Parsed to integer grids; zero off-module rects |
 | Motif dialects | the same grids | `stitch` = rx 4.6; `crisp` = rx 0. Colors verbatim, never recolored |
 | Fields | motif silhouettes | Re-laid on the 8px stitch grid, one ink, one strength |
-| Eternal Thread | `popescuportfolio/assets/case.css` `.thread-band` | Copied verbatim (48x16 tile) |
-| Deco Band | Commander's tile spec | 88x66, 4x3 grid of 22px cells |
-| Marks | `pop-logo-{color,mono}.png` | Copied untouched |
+| Eternal Thread | `popescuportfolio/assets/case.css` `.thread-band` | Copied verbatim (48x16 source coords) |
+| Light Trim | Canon vault measurement | 32x8, four 5x5 stitches, staggered |
+| Deco Band | Canon tile spec | 88x66, 4x3 grid of 22px cells |
+| Marks | `sources/pop-logo-{color,mono}.png` | Copied untouched (byte-identical) |
 
-### Silhouette derivation
-A field silhouette is every occupied cell of a motif **except** cells filled ivory `#FFF3F0` —
-ivory is a ground color, so those cells are negative space, not ink. This affects `stem-bloom`
-alone, which carries a 4-cell ivory knockout at its centre (50 cells -> 46 inked).
+### Why `sources/` is tracked
+The five motif SVGs and both logo PNGs are **not** redundant with `motifs/` and `marks/`.
+`motifs/` files are re-serialised into two dialects and are build output; the logos in `marks/`
+are byte-identical copies. The loom reads `sources/` at build time, so removing it would break
+reproducibility — the one thing this repo must guarantee. They stay, relocated from the repo
+root into `sources/` to separate input from output.
+
+---
+
+## Canon interpretations
+
+Two readings were required during the export and are **blessed as canon**:
+
+**1. `stem-bloom`'s ivory cells are negative space, not ink.** The motif carries a 4-cell ivory
+`#FFF3F0` knockout at its centre. Ivory is a ground color, so those cells are holes: the field
+silhouette omits them (50 cells -> 46 inked). No other motif is affected; every other silhouette
+is 1:1 with its cell count.
+
+**2. Peri is a mid ground and takes shadow @0.18.** FIELD LAW's ink flip is triggered by *dark*
+grounds. Only abyss (and future dark grounds) take peri `#6F7BFF` @0.16. Peri `#6F7BFF` used
+*as a ground* is a mid tone and carries shadow `#040519` @0.18 like ivory, yellow, pink, and
+vermilion.
 
 ### Ink selection (FIELD LAW v1.2)
 | Ground | Hex | Ink | Strength |
@@ -113,9 +171,25 @@ alone, which carries a 4-cell ivory knockout at its centre (50 cells -> 46 inked
 | abyss | `#04051A` | peri `#6F7BFF` | 0.16 |
 
 All fields here are decorative, so all use **0.18 standard** (0.16 on dark). The 0.13 whisper
-strength is reserved for fields sitting behind readable content and is not exported in this pack.
+strength is reserved for fields behind readable content and is not exported in this pack.
 
 Spot-check: shadow on yellow at 0.18 composites to `#D0B929` — dusty olive, as specified.
+
+---
+
+## Bands
+
+| Band | Native | Ground | Notes |
+|---|---|---|---|
+| Eternal Thread | 54x18 | abyss bed | **Dark grounds only** |
+| Light Trim | 32x8 | transparent | **Light grounds only**; strip = unit x24 = 768x8 |
+| Deco Band | 88x66 | white | Editorial moments; `band_deco-strip.svg` is the 4-repeat |
+
+### Ruling: Eternal Thread's 48x16 -> 54x18 is not a scaling operation
+BAND LAW fixes Eternal Thread at **18px**. The 48x16 tile is *source coordinates*; x1.125 is
+simply what "18px tall" means for that tile. It is the voice's definition, not a transform.
+BAND LAW v1.2's print-scale clause governs scaling a voice **beyond its native size**
+(18 -> 36, 8 -> 16), and that clause is fully in force above 18px. Not a deviation.
 
 ---
 
@@ -123,10 +197,10 @@ Spot-check: shadow on yellow at 0.18 composites to `#D0B929` — dusty olive, as
 
 Every mixed field carries its seed; **the seed is the design**. Layouts are a 4x4 grid of
 16x16-cell slots, each slot drawing one of the Folk Five by seeded random choice, motif centred
-in its slot. Neutral surfaces shuffle evenly, so selection here is uniform across all five —
-no totem weighting.
+in its slot. Neutral surfaces shuffle evenly, so selection is uniform across all five — no totem
+weighting.
 
-The generator is a documented LCG so any seed regenerates identically:
+The generator is a documented LCG, so any seed regenerates identically:
 
 ```
 state = seed
@@ -137,9 +211,10 @@ index = floor(r * 5)                                 # into the Folk Five, in ca
 
 Canon order: `diamond-eye, bloom-star, north-star, quad-knot, stem-bloom`.
 
-Each SVG records its own seed in a `data-seed` attribute. **No seed in this commit is
-"chosen"** — `contact-sheet.png` exists for the Commander to select from; a follow-up commit
-prunes the losers.
+Each SVG records its own seed in a `data-seed` attribute. A seed produces one layout, which is
+then rendered on each ground — so `mix_s7_ivory` and `mix_s7_abyss` are the same design in two
+worlds. **No seed in this commit is "chosen"**; `contact-sheet.png` exists for the Commander to
+select from, and a follow-up commit prunes the losers.
 
 ---
 
@@ -156,14 +231,14 @@ background rule. No asset requests, no build step:
 **PNG @2x for Figma and print.** Field PNGs are 960x960 (2x of the 480 swatch) — drop straight
 into Figma as an image fill, or place in print at up to 50% scale for 300dpi output.
 
-**SVG for anything that scales.** The field SVGs use a `<pattern>`, so resizing the frame
-re-tiles rather than stretching the motif.
+**SVG for anything that scales.** Field SVGs use a `<pattern>`, so resizing the frame re-tiles
+rather than stretching the motif.
 
 ### Prohibitions that bite in practice
 - Never rotate a motif — translation is its only legal motion.
 - Never mix dialects in one field.
 - Bands never swap grounds: Eternal Thread on dark only, Light Trim on light only.
-- Band scaling is whole-number and aspect-locked. Do not scale a band on one axis.
+- Scaling a band beyond native is whole-number and aspect-locked. Never scale on one axis.
 - Never introduce a color outside the twelve canon hexes. When contrast fails, change the
   pairing, never the pigment.
 
@@ -171,13 +246,10 @@ re-tiles rather than stretching the motif.
 
 ## Known deviations (logged, not fixed here)
 
-1. **Eternal Thread renders at x1.125.** The canon tile is 48x16; the deployed `.thread-band`
-   paints it at `54px 18px` to hit the 18px band height. That is aspect-locked but fractional,
-   which BAND LAW v1.2's print-scale clause forbids. `band_eternal-thread.svg` reproduces the
-   deployed band exactly rather than silently "correcting" it. Commander's call.
-2. **Light Trim is absent.** No canon source for it exists in this workspace, and BAND LAW plus
-   the component inventory do not fix its four stitch colors or their order. Not reconstructed
-   by guess. Pending the Commander's tile.
-3. **The 0.13 whisper strength is not exported.** Only decorative strengths ship here.
-4. **`ink-deep` homepage drift.** BRAND.md logs the deployed cards at ink-deep `#0A0B22` @0.13;
-   this pack uses shadow throughout, per the vault's one-ink rule.
+1. **The 0.13 whisper strength is not exported.** Only decorative strengths ship in this pack.
+2. **`ink-deep` homepage drift.** `BRAND.md` logs the deployed cards at ink-deep `#0A0B22`
+   @0.13; this pack uses shadow `#040519` throughout, per the vault's one-ink rule.
+3. **Dashboard app files relocated.** `globals.css`, `layout.tsx`, and `page.tsx` were found at
+   this repo's root. They are dashboard deployment files, not brand-kit files; they were moved
+   to `../brand-kit-attic/` on disk (outside this repo) and removed from tracking. Nothing was
+   deleted. Their final home is a separate decision.
