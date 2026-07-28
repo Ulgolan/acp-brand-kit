@@ -82,6 +82,8 @@ band_light-trim.svg
 ### `/mixed/` — 41 files
 20 seeded Mixed Fields on ivory + abyss, even shuffle, silhouette dialect. A seed produces one layout; that layout is rendered on both grounds.
 
+**All 20 seeds reviewed and Commander-approved, 28 July 2026. The full set is canon.**
+
 ```
 mix_s{1..20}_{ivory,abyss}.svg
 contact-sheet.png
@@ -185,6 +187,12 @@ Spot-check: shadow on yellow at 0.18 composites to `#D0B929` — dusty olive, as
 | Light Trim | 32x8 | transparent | **Light grounds only**; strip = unit x24 = 768x8 |
 | Deco Band | 88x66 | white | Editorial moments; `band_deco-strip.svg` is the 4-repeat |
 
+### Usage note: Light Trim on yellow
+Light Trim on a yellow ground is legal — light ground, canon pigments, nothing to fix. But the
+yellow stitch goes silent against it, and a quarter of the band's voice drops out. Prefer ivory
+or another light ground when all four stitches should read. This is guidance, not law: if the
+muted reading is what you want, take it.
+
 ### Ruling: Eternal Thread's 48x16 -> 54x18 is not a scaling operation
 BAND LAW fixes Eternal Thread at **18px**. The 48x16 tile is *source coordinates*; x1.125 is
 simply what "18px tall" means for that tile. It is the voice's definition, not a transform.
@@ -213,8 +221,10 @@ Canon order: `diamond-eye, bloom-star, north-star, quad-knot, stem-bloom`.
 
 Each SVG records its own seed in a `data-seed` attribute. A seed produces one layout, which is
 then rendered on each ground — so `mix_s7_ivory` and `mix_s7_abyss` are the same design in two
-worlds. **No seed in this commit is "chosen"**; `contact-sheet.png` exists for the Commander to
-select from, and a follow-up commit prunes the losers.
+worlds.
+
+**All 20 seeds reviewed and Commander-approved, 28 July 2026. The full set is canon.** No
+pruning; `contact-sheet.png` is the approved record of the set, not a shortlist.
 
 ---
 
